@@ -135,6 +135,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   arma: {fileID: 0}
+  vida: 0
 --- !u!212 &212130595666998828
 SpriteRenderer:
   m_ObjectHideFlags: 1

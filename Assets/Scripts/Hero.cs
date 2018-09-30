@@ -15,7 +15,7 @@ public class Hero : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        this.velocidade = 5;
+        this.velocidade = 0;
         this.forcaPulo = 9;
         this.vida = 100;
         this.podePular = false;
@@ -23,38 +23,10 @@ public class Hero : MonoBehaviour {
         this.rigidbody = GetComponent<Rigidbody2D>();
         this.animator = GetComponent<Animator>();
         this.arma = GetComponent<CapsuleCollider2D>();
-
     }
-	
+
 	// Update is called once per frame
 	void Update () {
-
-        if (Input.GetKey(KeyCode.D)) {
-            GetComponent<SpriteRenderer>().flipX = false;
-        }
-        if (Input.GetKey(KeyCode.A)) {
-            GetComponent<SpriteRenderer>().flipX = true;
-        }
-
-        // Correr.
-        if (Input.GetKey(KeyCode.D)) {
-            this.transform.Translate(new Vector2(this.velocidade * Time.deltaTime, 0));
-            this.animacaoRun();
-        } else if (Input.GetKey(KeyCode.A)) {
-            this.transform.Translate(new Vector2(-this.velocidade * Time.deltaTime, 0));
-            this.animacaoRun();
-        } else if ((!Input.GetKey(KeyCode.A)) && (!Input.GetKey(KeyCode.D))) {
-            this.animacaoParar();
-        }
-
-        // Pular.
-        if (Input.GetKeyDown(KeyCode.Space) && (this.podePular) && (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D))) {
-            this.rigidbody.AddForce(new Vector2(0, forcaPulo), ForceMode2D.Impulse);
-            this.animacaoPular();
-        } else if (Input.GetKeyDown(KeyCode.Space) && (this.podePular) && !(Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D))) {
-            this.rigidbody.AddForce(new Vector2(0, forcaPulo), ForceMode2D.Impulse);
-            this.animacaoPular();
-        }
 
         // Ataca.
         if (Input.GetKey(KeyCode.K) && podePular) {
@@ -63,6 +35,60 @@ public class Hero : MonoBehaviour {
         } else if (Input.GetKeyDown(KeyCode.K)) {
             this.arma.isTrigger = true;
             this.animacaoParar();
+        }
+
+        this.mover();
+    }
+
+    public void pular(){
+        if (podePular){
+            this.animacaoPular();
+            this.rigidbody.AddForce(new Vector2(0, forcaPulo), ForceMode2D.Impulse);
+        } else {
+            this.animacaoParar();
+        }
+    }
+
+    public void direita(){
+        GetComponent<SpriteRenderer>().flipX = false;
+        this.velocidade = 5;
+    }
+
+    public void esquerda(){
+        GetComponent<SpriteRenderer>().flipX = true;
+        this.velocidade = -5;
+
+    }
+
+    public void parado(){
+        this.velocidade = 0;
+        this.animacaoParar();
+    }
+
+    private void mover(){
+        if (this.velocidade != 0){
+            this.animacaoRun();
+            this.transform.Translate(new Vector2(this.velocidade * Time.deltaTime, 0));
+        }
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision) {
+        
+        if (collision.gameObject.CompareTag("Chao")) {
+            this.podePular = true;
+            this.animator.SetBool("jump", false);
+            this.animator.SetBool("idle", true);
+        }
+
+        if (collision.gameObject.CompareTag("Arvore")) {
+            this.vida -= 10;
+        }
+
+    }
+
+    private void OnCollisionExit2D(Collision2D collision) {
+        if (collision.gameObject.CompareTag("Chao")) {
+            this.podePular = false;
         }
     }
 
@@ -88,25 +114,5 @@ public class Hero : MonoBehaviour {
         this.animator.SetBool("idle", false);
         this.animator.SetBool("run", false);
         this.animator.SetBool("jump", true);
-    }
-
-    private void OnCollisionEnter2D(Collision2D collision) {
-        
-        if (collision.gameObject.CompareTag("Chao")) {
-            this.podePular = true;
-            this.animator.SetBool("jump", false);
-            this.animator.SetBool("idle", true);
-        }
-
-        if (collision.gameObject.CompareTag("Arvore")) {
-            this.vida -= 10;
-        }
-
-    }
-
-    private void OnCollisionExit2D(Collision2D collision) {
-        if (collision.gameObject.CompareTag("Chao")) {
-            this.podePular = false;
-        }
     }
 }
